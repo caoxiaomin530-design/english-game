@@ -3,280 +3,293 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>英语单词魔法闯关</title>
+    <title>霍格沃茨单词试炼</title>
     <style>
-        /* 魔法星空背景 */
+        :root { --gold: #ffd700; --magic: #00ffcc; }
         body {
-            background: radial-gradient(circle at bottom, #1b2735 0%, #090a0f 100%);
-            color: #fff;
-            font-family: sans-serif;
-            text-align: center;
-            margin: 0;
-            overflow: hidden;
-            touch-action: manipulation;
+            background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%);
+            color: #fff; font-family: "PingFang SC", sans-serif;
+            margin: 0; overflow: hidden; touch-action: manipulation;
         }
-        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .stars::after { content: "."; position: absolute; top: 10%; left: 20%; font-size: 20px; color: yellow; opacity: 0.5; box-shadow: 100px 200px 0 white, 200px 50px 0 yellow, -50px 300px 0 white; animation: twinkle 5s infinite; }
-        @keyframes twinkle { 50% { opacity: 0.2; transform: scale(0.8); } }
+
+        /* 游戏舞台 */
+        #game-stage {
+            width: 100vw; height: 100vh; position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+
+        /* 顶部信息栏 */
+        #hud {
+            position: absolute; top: 0; width: 100%; padding: 15px;
+            background: rgba(0,0,0,0.7); display: none; justify-content: space-between;
+            color: var(--gold); z-index: 10; box-sizing: border-box;
+        }
+
+        /* 菜单界面 */
+        #menu-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9); z-index: 100;
+            display: flex; flex-direction: column; align-items: center; padding-top: 50px;
+        }
+
+        .unit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 90%; max-width: 500px; }
+        .unit-btn { 
+            padding: 15px; background: #3b1e54; color: var(--gold); 
+            border: 2px solid var(--gold); cursor: pointer; border-radius: 12px; font-weight: bold;
+        }
+
+        /* 核心内容区 */
+        #content-area { width: 90%; max-width: 600px; z-index: 5; text-align: center; }
+        .big-word { font-size: 50px; color: var(--gold); margin: 20px 0; text-shadow: 0 0 10px #000; }
+        .hint-text { font-size: 24px; color: #ccc; margin-bottom: 20px; }
         
-        #game-stage { position: relative; width: 100vw; height: 100vh; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        
-        /* 菜单样式 */
-        #menu-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 10, 15, 0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; padding-top: 40px; overflow-y: auto; }
-        h1 { color: #ffd700; font-size: 28px; text-shadow: 0 0 10px #ff9900; margin-bottom: 5px; }
-        .subtitle { color: #888; font-size: 14px; margin-bottom: 20px; }
-        
-        #unit-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; max-width: 500px; padding-bottom: 50px; }
-        .unit-btn { padding: 15px; font-size: 16px; background: #2c3e50; color: #ffd700; border: 2px solid #f39c12; cursor: pointer; border-radius: 12px; font-weight: bold; transition: transform 0.1s; }
-        .unit-btn:active { transform: scale(0.95); background: #34495e; }
-        
-        /* 学习区域样式 */
-        #center-display { width: 90%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
-        .big-word { font-size: 40px; color: #f1c40f; font-weight: bold; margin: 15px 0; line-height: 1.2; text-shadow: 2px 2px 0 #000; }
-        .hint-text { font-size: 24px; color: #ecf0f1; margin-bottom: 25px; }
-        
-        .option-btn { width: 100%; padding: 16px; margin: 8px 0; background: rgba(255, 255, 255, 0.1); border: 2px solid #bdc3c7; color: white; font-size: 18px; cursor: pointer; border-radius: 50px; backdrop-filter: blur(5px); }
-        .correct { background: #27ae60 !important; border-color: #2ecc71 !important; }
-        .wrong { background: #c0392b !important; border-color: #e74c3c !important; }
-        
-        #hud { position: absolute; top: 0; width: 100%; padding: 10px 20px; background: rgba(0,0,0,0.6); display: flex; justify-content: space-between; color: #ffd700; font-size: 15px; box-sizing: border-box; }
-        
-        /* 战斗层样式 */
-        #combat-layer { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 50; }
-        #player { font-size: 50px; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); text-shadow: 0 0 20px blue; }
-        .enemy { position: absolute; color: #e74c3c; font-weight: bold; font-size: 24px; background: rgba(255,255,255,0.9); padding: 8px 15px; border-radius: 8px; box-shadow: 0 0 10px red; }
-        .bullet { width: 12px; height: 12px; background: #2ecc71; border-radius: 50%; position: absolute; box-shadow: 0 0 10px #2ecc71; }
-        
-        #input-area { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; }
-        #answer-input { width: 75%; padding: 12px; font-size: 20px; text-align: center; border-radius: 25px; border: 3px solid #f1c40f; background: rgba(0,0,0,0.85); color: white; outline: none; }
+        /* 交互按钮 */
+        .btn {
+            width: 85%; padding: 15px; margin: 10px 0;
+            background: rgba(255,255,255,0.1); border: 2px solid #fff;
+            color: #fff; font-size: 18px; border-radius: 50px; cursor: pointer;
+        }
+        .correct { background: #27ae60 !important; }
+        .wrong { background: #c0392b !important; animation: shake 0.3s; }
+
+        /* 魔法射击区 */
+        #combat-zone { display: none; width: 100%; height: 100%; position: absolute; top: 0; z-index: 5; }
+        #harry { font-size: 50px; position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); }
+        .enemy { 
+            position: absolute; background: white; color: black; padding: 10px 20px; 
+            border-radius: 8px; font-weight: bold; font-size: 20px; box-shadow: 0 0 20px var(--gold);
+        }
+        .spell { 
+            width: 10px; height: 10px; background: #00ff00; border-radius: 50%; 
+            position: absolute; box-shadow: 0 0 15px #00ff00; 
+        }
+
+        #input-box { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; }
+        #spell-input { 
+            width: 80%; padding: 12px; font-size: 20px; border: 2px solid var(--gold); 
+            background: #000; color: #fff; border-radius: 20px; text-align: center;
+        }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
     </style>
 </head>
 <body>
-    <div class="stars"></div>
 
     <div id="game-stage">
         <div id="menu-screen">
-            <h1>[ENGLISH] 单词魔法特训</h1>
-            <div class="subtitle">沪教版四下 · 全单元 · 智能版</div>
-            <div id="unit-list"></div>
-            <div style="margin-top:20px; color:#666; font-size:12px;">如果看不到按钮，请刷新页面</div>
+            <h1 style="margin-bottom: 5px;">霍格沃茨单词课</h1>
+            <p style="color:#888; margin-bottom: 30px;">沪教版四下 · 魔法特训</p>
+            <div id="unit-list" class="unit-grid"></div>
         </div>
 
-        <div id="hud" style="display:none;">
-            <div onclick="location.reload()" style="cursor:pointer; border:1px solid #666; padding:2px 8px; border-radius:5px;"> Back (退出)</div>
-            <div id="stage-info">Step 1</div>
-            <div>Score: <span id="score">0</span></div>
+        <div id="hud">
+            <div onclick="location.reload()">退出</div>
+            <div id="stage-info">正在加载</div>
+            <div>得分: <span id="score">0</span></div>
         </div>
 
-        <div id="center-display" style="display:none;">
-            <div id="display-content"></div>
-            <div id="status-text" style="height:25px; color:#aaa; font-size:14px; margin-bottom: 5px;"></div>
-            <div id="options-container" style="display:flex; flex-direction:column; align-items:center; width:100%;"></div>
+        <div id="content-area" style="display:none;">
+            <div id="display-text"></div>
+            <div id="options-container"></div>
+            <div id="status-hint" style="margin-top:20px; color:#aaa; font-size:14px;"></div>
         </div>
 
-        <div id="combat-layer">
-            <div id="player">🧙‍♂️</div>
-            <div id="input-area">
-                <input type="text" id="answer-input" placeholder="输入单词发射子弹..." autocomplete="off">
+        <div id="combat-zone">
+            <div id="harry">🧙‍♂️</div>
+            <div id="input-box">
+                <input type="text" id="spell-input" placeholder="输入单词拼写..." autocomplete="off">
             </div>
         </div>
     </div>
 
 <script>
-    // 完整词库 (Unit 1 - Unit 8)
-    const TEXTBOOK = {
-        "Unit 1": [{en:"get up", cn:"起床"}, {en:"have breakfast", cn:"吃早餐"}, {en:"go to school", cn:"上学"}, {en:"have lunch", cn:"吃午餐"}, {en:"go home", cn:"回家"}, {en:"have dinner", cn:"吃晚餐"}, {en:"go to bed", cn:"睡觉"}, {en:"daily", cn:"日常的"}, {en:"schedule", cn:"日程安排"}, {en:"at", cn:"在(某时间)"}, {en:"o'clock", cn:"...点钟"}, {en:"half", cn:"...点半"}, {en:"little", cn:"年幼的"}, {en:"drink", cn:"喝; 饮"}, {en:"lesson", cn:"课"}, {en:"draw", cn:"画"}, {en:"quarter", cn:"一刻钟"}, {en:"Miss", cn:"小姐"}, {en:"brush my teeth", cn:"刷牙"}, {en:"wash my face", cn:"洗脸"}],
-        "Unit 2": [{en:"Chinese", cn:"语文"}, {en:"Maths", cn:"数学"}, {en:"English", cn:"英语"}, {en:"PE", cn:"体育"}, {en:"Music", cn:"音乐"}, {en:"Art", cn:"美术"}, {en:"IT", cn:"信息技术"}, {en:"Science", cn:"科学"}, {en:"club", cn:"社团"}, {en:"student", cn:"学生"}, {en:"different", cn:"不同的"}, {en:"subject", cn:"科目"}, {en:"class", cn:"班级;课"}, {en:"pig", cn:"猪"}, {en:"timetable", cn:"时间表"}, {en:"work out", cn:"算出"}, {en:"model plane", cn:"飞机模型"}],
-        "Unit 3": [{en:"firefighter", cn:"消防员"}, {en:"police officer", cn:"警察"}, {en:"farmer", cn:"农夫"}, {en:"teacher", cn:"老师"}, {en:"doctor", cn:"医生"}, {en:"bus driver", cn:"司机"}, {en:"fire", cn:"火"}, {en:"sick", cn:"生病的"}, {en:"soup", cn:"汤"}, {en:"Mrs", cn:"夫人"}, {en:"job", cn:"工作"}, {en:"people", cn:"人们"}, {en:"know", cn:"知道"}, {en:"dentist", cn:"牙医"}, {en:"hospital", cn:"医院"}, {en:"nurse", cn:"护士"}, {en:"check", cn:"检查"}],
-        "Unit 4": [{en:"triangle", cn:"三角铁"}, {en:"violin", cn:"小提琴"}, {en:"piano", cn:"钢琴"}, {en:"guitar", cn:"吉他"}, {en:"erhu", cn:"二胡"}, {en:"flute", cn:"长笛"}, {en:"drum", cn:"鼓"}, {en:"woman", cn:"妇女"}, {en:"concert", cn:"音乐会"}, {en:"think", cn:"思考"}, {en:"clever", cn:"聪明的"}, {en:"idea", cn:"想法"}, {en:"beautiful", cn:"美妙的"}],
-        "Unit 5": [{en:"paper-cut", cn:"剪纸"}, {en:"painting", cn:"绘画"}, {en:"circle", cn:"圆形"}, {en:"square", cn:"正方形"}, {en:"star", cn:"星星"}, {en:"rectangle", cn:"长方形"}, {en:"clock", cn:"钟"}, {en:"shape", cn:"形状"}, {en:"side", cn:"边"}, {en:"ask", cn:"问"}, {en:"tiger", cn:"老虎"}, {en:"say", cn:"说"}],
-        "Unit 6": [{en:"day", cn:"白天"}, {en:"night", cn:"夜晚"}, {en:"hour", cn:"小时"}, {en:"minute", cn:"分钟"}, {en:"second", cn:"秒"}, {en:"month", cn:"月份"}, {en:"year", cn:"年"}, {en:"measure", cn:"测量"}, {en:"question", cn:"问题"}, {en:"exercise", cn:"运动"}],
-        "Unit 7": [{en:"liquid", cn:"液体"}, {en:"solid", cn:"固体"}, {en:"gas", cn:"气体"}, {en:"sugar", cn:"糖"}, {en:"salt", cn:"盐"}, {en:"melt", cn:"融化"}, {en:"steam", cn:"水蒸气"}, {en:"heat", cn:"加热"}, {en:"hungry", cn:"饿的"}, {en:"ice cream", cn:"冰淇淋"}, {en:"freezer", cn:"冰柜"}, {en:"mix", cn:"混合"}],
-        "Unit 8": [{en:"polite", cn:"有礼貌的"}, {en:"take turns", cn:"轮流"}, {en:"knock", cn:"敲"}, {en:"ox", cn:"公牛"}, {en:"until", cn:"直到..."}, {en:"invite", cn:"邀请"}, {en:"behind", cn:"在...后面"}, {en:"cry", cn:"哭"}, {en:"kind", cn:"友善的"}, {en:"helpful", cn:"乐于助人的"}]
+    // 词库配置
+    const DATA = {
+        "Unit 1": [{en:"get up",cn:"起床"},{en:"have breakfast",cn:"吃早餐"},{en:"go to school",cn:"上学"},{en:"have lunch",cn:"吃午餐"},{en:"go home",cn:"回家"}],
+        "Unit 2": [{en:"Chinese",cn:"语文"},{en:"Maths",cn:"数学"},{en:"English",cn:"英语"},{en:"PE",cn:"体育"},{en:"Music",cn:"音乐"}]
     };
-    
-    // 游戏变量
-    let queue=[], qIndex=0, step=1, score=0, recognition=null, isMobile=false;
+
+    let state = {
+        groupWords: [],
+        currentIndex: 0,
+        step: 1, // 1:跟读3遍, 2:听音识义, 3:看中说英, 4:拼写射击
+        repeatLeft: 3,
+        score: 0
+    };
+
     const synth = window.speechSynthesis;
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-    // 智能环境检测（手机/电脑）
-    function checkEnv(){
-        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if(SR){
-            try{ recognition = new SR(); recognition.lang='en-US'; recognition.continuous=false; }
-            catch(e){ recognition=null; }
-        }
-        // 如果是手机或者没有语音功能，开启手机模式
-        if(!recognition || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){
-            isMobile = true;
-        }
-    }
-
-    // 确保页面加载后生成按钮
-    window.onload = function() {
-        checkEnv();
+    function init() {
         const list = document.getElementById('unit-list');
-        for(let u in TEXTBOOK){
-            let btn = document.createElement('div');
-            btn.className = 'unit-btn';
-            btn.innerText = u;
-            btn.onclick = () => startGame(u);
-            list.appendChild(btn);
+        for(let u in DATA) {
+            let b = document.createElement('div');
+            b.className = 'unit-btn';
+            b.innerText = u;
+            b.onclick = () => startUnit(u);
+            list.appendChild(b);
         }
-    };
-
-    function startGame(u){
-        document.getElementById('menu-screen').style.display='none';
-        document.getElementById('hud').style.display='flex';
-        document.getElementById('center-display').style.display='flex';
-        queue = TEXTBOOK[u];
-        qIndex = 0; step = 1; score = 0;
-        loadLevel();
     }
 
-    function loadLevel(){
-        if(qIndex >= queue.length){
-            if(step < 4){
-                step++; qIndex = 0; 
-                alert("太棒了！升级到第 " + step + " 关 (Step " + step + ")!");
-                loadLevel();
-            } else {
-                alert("🎉 恭喜！本单元全部通关！");
+    function startUnit(u) {
+        document.getElementById('menu-screen').style.display = 'none';
+        document.getElementById('hud').style.display = 'flex';
+        document.getElementById('content-area').style.display = 'block';
+        state.groupWords = DATA[u].slice(0, 5); // 暂取前5个作为第一组
+        state.step = 1;
+        state.currentIndex = 0;
+        runStep();
+    }
+
+    function runStep() {
+        const word = state.groupWords[state.currentIndex];
+        const display = document.getElementById('display-text');
+        const container = document.getElementById('options-container');
+        const hint = document.getElementById('status-hint');
+        
+        container.innerHTML = '';
+        document.getElementById('combat-zone').style.display = 'none';
+        document.getElementById('content-area').style.display = 'block';
+
+        if (state.step === 1) { // 步骤1：跟读3遍
+            document.getElementById('stage-info').innerText = "Step 1: 魔法跟读";
+            display.innerHTML = `<div class="big-word">${word.en}</div><div class="hint-text">${word.cn}</div>`;
+            hint.innerText = `点击按钮，听魔法示范（剩余 ${state.repeatLeft} 次）`;
+            
+            let b = document.createElement('div');
+            b.className = 'btn';
+            b.innerText = "聆听咒语";
+            b.onclick = () => {
+                speak(word.en);
+                state.repeatLeft--;
+                if(state.repeatLeft <= 0) {
+                    state.repeatLeft = 3;
+                    nextWord();
+                } else {
+                    hint.innerText = `点击按钮，听魔法示范（剩余 ${state.repeatLeft} 次）`;
+                }
+            };
+            container.appendChild(b);
+
+        } else if (state.step === 2) { // 步骤2：听音辨义
+            document.getElementById('stage-info').innerText = "Step 2: 听音辨义";
+            display.innerHTML = `<div class="big-word" onclick="speak('${word.en}')">🔊</div>`;
+            hint.innerText = "点击喇叭，选出正确的中文含义";
+            speak(word.en);
+            
+            let options = [...state.groupWords].sort(() => Math.random() - 0.5);
+            options.forEach(o => {
+                let b = document.createElement('div');
+                b.className = 'btn';
+                b.innerText = o.cn;
+                b.onclick = () => {
+                    if(o.en === word.en) {
+                        b.classList.add('correct');
+                        setTimeout(nextWord, 500);
+                    } else {
+                        b.classList.add('wrong');
+                    }
+                };
+                container.appendChild(b);
+            });
+
+        } else if (state.step === 3) { // 步骤3：中译英
+            document.getElementById('stage-info').innerText = "Step 3: 咒语显现";
+            display.innerHTML = `<div class="big-word">${word.cn}</div>`;
+            hint.innerText = "这个词对应的英语咒语是？";
+            
+            let options = [...state.groupWords].sort(() => Math.random() - 0.5);
+            options.forEach(o => {
+                let b = document.createElement('div');
+                b.className = 'btn';
+                b.innerText = o.en;
+                b.onclick = () => {
+                    if(o.en === word.en) {
+                        b.classList.add('correct');
+                        speak(word.en);
+                        setTimeout(nextWord, 500);
+                    } else {
+                        b.classList.add('wrong');
+                    }
+                };
+                container.appendChild(b);
+            });
+
+        } else if (state.step === 4) { // 步骤4：拼写射击
+            document.getElementById('content-area').style.display = 'none';
+            document.getElementById('combat-zone').style.display = 'block';
+            document.getElementById('stage-info').innerText = "Step 4: 终极决斗";
+            
+            const oldEnemy = document.querySelector('.enemy');
+            if(oldEnemy) oldEnemy.remove();
+
+            let enemy = document.createElement('div');
+            enemy.className = 'enemy';
+            enemy.innerText = word.cn;
+            enemy.style.top = "100px";
+            enemy.style.left = "50%";
+            enemy.style.transform = "translateX(-50%)";
+            document.getElementById('combat-zone').appendChild(enemy);
+
+            const input = document.getElementById('spell-input');
+            input.value = '';
+            input.focus();
+            input.onkeypress = (e) => {
+                if(e.key === 'Enter') {
+                    if(input.value.trim().toLowerCase() === word.en.toLowerCase()) {
+                        fireMagic(enemy);
+                    } else {
+                        input.classList.add('misfire');
+                        setTimeout(() => input.classList.remove('misfire'), 500);
+                    }
+                }
+            };
+        }
+    }
+
+    function fireMagic(enemy) {
+        let b = document.createElement('div');
+        b.className = 'spell';
+        b.style.bottom = "150px";
+        b.style.left = "50%";
+        document.getElementById('combat-zone').appendChild(b);
+
+        // 简单的飞行动画
+        setTimeout(() => {
+            b.style.transition = "all 0.3s ease-in";
+            b.style.top = "100px";
+            setTimeout(() => {
+                b.remove();
+                enemy.remove();
+                state.score += 10;
+                document.getElementById('score').innerText = state.score;
+                nextWord();
+            }, 300);
+        }, 10);
+    }
+
+    function nextWord() {
+        state.currentIndex++;
+        if(state.currentIndex >= state.groupWords.length) {
+            state.currentIndex = 0;
+            state.step++;
+            if(state.step > 4) {
+                alert("本组5个单词已练完！准备进入下一单元或复习。");
                 location.reload();
+                return;
             }
-            return;
         }
-        
-        const t = ["", "Step 1: 记忆 (Memory)", "Step 2: 辨义 (Listen)", "Step 3: 互译 (Meaning)", "Step 4: 拼写 (Spell)"];
-        document.getElementById('stage-info').innerText = t[step];
-        document.getElementById('score').innerText = score;
-        
-        document.getElementById('display-content').innerHTML='';
-        document.getElementById('options-container').innerHTML='';
-        document.getElementById('status-text').innerText='';
-        document.getElementById('center-display').style.display='flex';
-        document.getElementById('combat-layer').style.display='none';
-        
-        const w = queue[qIndex];
-        if(step===1) runStep1(w);
-        else if(step===2) runStep2(w);
-        else if(step===3) runStep3(w);
-        else if(step===4) runStep4(w);
+        runStep();
     }
 
-    function speak(t){
+    function speak(t) {
         if(synth.speaking) synth.cancel();
         let u = new SpeechSynthesisUtterance(t);
         u.lang = 'en-US';
         synth.speak(u);
     }
 
-    // Step 1: 记忆/跟读
-    function runStep1(w){
-        document.getElementById('display-content').innerHTML = '<div class="big-word">'+w.en+'</div><div class="hint-text">'+w.cn+'</div>';
-        setTimeout(()=>speak(w.en), 300);
-        let c = document.getElementById('options-container');
-        
-        if(isMobile){
-            // 手机端：直接显示记住了
-            document.getElementById('status-text').innerText = "请听音记忆 (Listen & Memorize)";
-            let b = document.createElement('div');
-            b.className = 'option-btn';
-            b.innerText = "✅ 我记住了 (Next)";
-            b.style.background = "#2980b9";
-            b.onclick = ()=>{ score+=5; next(); };
-            c.appendChild(b);
-        } else {
-            // 电脑端：显示跟读
-            document.getElementById('status-text').innerText = "请大声跟读 (Read Aloud)";
-            let b = document.createElement('div');
-            b.className = 'option-btn';
-            b.innerText = "🎙️ 点击跟读";
-            let s = document.getElementById('status-text');
-            b.onclick = ()=>{
-                b.style.background = "#f39c12"; b.innerText = "👂 正在听...";
-                try{ recognition.start(); } catch(e){}
-                recognition.onresult = (e)=>{
-                    let t = e.results[0][0].transcript.toLowerCase();
-                    if(t.includes(w.en.toLowerCase()) || t.length>0){
-                        s.innerText = "Excellent!"; score+=10; setTimeout(next, 800);
-                    }
-                };
-            };
-            c.appendChild(b);
-            let k = document.createElement('div'); k.innerText="Pass (跳过)"; k.style.color="#888"; k.style.marginTop="10px"; k.style.cursor="pointer"; k.onclick=next; c.appendChild(k);
-        }
-    }
-
-    // Step 2: 听音辨义
-    function runStep2(w){
-        document.getElementById('display-content').innerHTML = '<div style="font-size:60px; margin:20px 0; cursor:pointer" onclick="speak(\''+w.en+'\')">🔊</div>';
-        document.getElementById('status-text').innerText = "听音选义 (Listen & Choose)";
-        speak(w.en);
-        getOpts(w, 'cn').forEach(o=>{
-            let b = document.createElement('div'); b.className='option-btn'; b.innerText=o.cn;
-            b.onclick = ()=>{
-                if(o===w){ b.classList.add('correct'); score+=10; setTimeout(next,500); }
-                else { b.classList.add('wrong'); speak("No"); }
-            };
-            document.getElementById('options-container').appendChild(b);
-        });
-    }
-
-    // Step 3: 互译
-    function runStep3(w){
-        document.getElementById('display-content').innerHTML = '<div class="big-word">'+w.cn+'</div>';
-        getOpts(w, 'en').forEach(o=>{
-            let b = document.createElement('div'); b.className='option-btn'; b.innerText=o.en;
-            b.onclick = ()=>{
-                if(o===w){ b.classList.add('correct'); speak(w.en); score+=10; setTimeout(next,500); }
-                else { b.classList.add('wrong'); }
-            };
-            document.getElementById('options-container').appendChild(b);
-        });
-    }
-
-    // Step 4: 拼写射击
-    function runStep4(w){
-        document.getElementById('center-display').style.display='none';
-        document.getElementById('combat-layer').style.display='block';
-        let i = document.getElementById('answer-input'); i.value=''; i.focus();
-        let e = document.createElement('div'); e.className='enemy'; e.innerText=w.cn;
-        e.style.top='100px'; 
-        // 修正：确保敌人不会跑出屏幕边缘
-        e.style.left = (Math.random()*(window.innerWidth-200) + 50)+"px";
-        document.getElementById('combat-layer').appendChild(e);
-
-        const chk = ()=>{
-            if(i.value.trim().toLowerCase() === w.en.toLowerCase()){
-                let b = document.createElement('div'); b.className='bullet';
-                b.style.bottom='130px'; b.style.left='50%';
-                document.getElementById('combat-layer').appendChild(b);
-                
-                // 子弹飞行动画
-                setTimeout(()=>{
-                    b.style.transition = "top 0.2s, left 0.2s";
-                    b.style.top = e.style.top;
-                    b.style.left = e.style.left;
-                    setTimeout(()=>{
-                        e.remove(); b.remove(); speak(w.en); score+=20; next();
-                    }, 200);
-                }, 10);
-            }
-        };
-        i.onkeypress=(evt)=>{ if(evt.key==='Enter') chk(); };
-        i.oninput=()=>{ if(i.value.trim().toLowerCase() === w.en.toLowerCase()) chk(); };
-    }
-
-    function next(){ qIndex++; loadLevel(); }
-    function getOpts(c, k){
-        let a = [c];
-        while(a.length<3){
-            let r = queue[Math.floor(Math.random()*queue.length)];
-            if(!a.includes(r)) a.push(r);
-        }
-        return a.sort(()=>Math.random()-0.5);
-    }
+    init();
 </script>
 </body>
 </html>
