@@ -8,63 +8,80 @@
         body {
             background: radial-gradient(circle at bottom, #1b2735 0%, #090a0f 100%);
             color: #fff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: sans-serif;
             text-align: center;
             margin: 0;
             overflow: hidden;
             touch-action: manipulation;
         }
+        /* 星空背景 */
         .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .stars::after { content: "✨"; position: absolute; top: 10%; left: 20%; font-size: 10px; color: yellow; opacity: 0.5; box-shadow: 100px 200px 0 white, 200px 50px 0 yellow, -50px 300px 0 white; animation: twinkle 5s infinite; }
+        .stars::after { content: "."; position: absolute; top: 10%; left: 20%; font-size: 20px; color: yellow; opacity: 0.5; box-shadow: 100px 200px 0 white, 200px 50px 0 yellow, -50px 300px 0 white; animation: twinkle 5s infinite; }
         @keyframes twinkle { 50% { opacity: 0.2; transform: scale(0.8); } }
+        
         #game-stage { position: relative; width: 100vw; height: 100vh; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        /* 菜单 */
         #menu-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(9, 10, 15, 0.95); z-index: 100; display: flex; flex-direction: column; align-items: center; padding-top: 40px; overflow-y: auto; }
-        h1 { color: #ffd700; font-size: 30px; text-shadow: 0 0 10px #ff9900; margin-bottom: 5px; }
+        h1 { color: #ffd700; font-size: 28px; text-shadow: 0 0 10px #ff9900; margin-bottom: 5px; }
         .subtitle { color: #888; font-size: 14px; margin-bottom: 20px; }
+        
         #unit-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 90%; max-width: 500px; padding-bottom: 50px; }
         .unit-btn { padding: 15px; font-size: 16px; background: #2c3e50; color: #ffd700; border: 2px solid #f39c12; cursor: pointer; border-radius: 12px; font-weight: bold; transition: transform 0.1s; }
         .unit-btn:active { transform: scale(0.95); background: #34495e; }
+        
+        /* 学习区 */
         #center-display { width: 90%; max-width: 600px; display: flex; flex-direction: column; align-items: center; }
-        .big-word { font-size: 42px; color: #f1c40f; font-weight: bold; margin: 15px 0; text-shadow: 2px 2px 0 #000; line-height: 1.2; }
+        .big-word { font-size: 40px; color: #f1c40f; font-weight: bold; margin: 15px 0; line-height: 1.2; }
         .hint-text { font-size: 22px; color: #ecf0f1; margin-bottom: 25px; }
-        .option-btn { width: 100%; padding: 16px; margin: 8px 0; background: rgba(255, 255, 255, 0.1); border: 2px solid #bdc3c7; color: white; font-size: 18px; cursor: pointer; border-radius: 50px; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+        
+        .option-btn { width: 100%; padding: 16px; margin: 8px 0; background: rgba(255, 255, 255, 0.1); border: 2px solid #bdc3c7; color: white; font-size: 18px; cursor: pointer; border-radius: 50px; }
         .correct { background: #27ae60 !important; border-color: #2ecc71 !important; }
         .wrong { background: #c0392b !important; border-color: #e74c3c !important; }
-        #hud { position: absolute; top: 0; width: 100%; padding: 12px 0; background: rgba(0,0,0,0.6); display: flex; justify-content: space-between; color: #ffd700; font-size: 15px; box-sizing: border-box; padding: 10px 20px; }
+        
+        #hud { position: absolute; top: 0; width: 100%; padding: 10px 20px; background: rgba(0,0,0,0.6); display: flex; justify-content: space-between; color: #ffd700; font-size: 15px; box-sizing: border-box; }
+        
         #combat-layer { display: none; width: 100%; height: 100%; position: absolute; top:0; left:0; z-index: 50; }
-        #player { font-size: 50px; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); }
-        .enemy { position: absolute; color: #e74c3c; font-weight: bold; font-size: 22px; background: rgba(255,255,255,0.9); padding: 6px 12px; border-radius: 6px; box-shadow: 0 0 10px rgba(231, 76, 60, 0.8); }
-        .bullet { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; position: absolute; box-shadow: 0 0 8px #2ecc71; }
+        #player { font-size: 40px; position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); }
+        .enemy { position: absolute; color: #e74c3c; font-weight: bold; font-size: 22px; background: rgba(255,255,255,0.9); padding: 6px 12px; border-radius: 6px; }
+        .bullet { width: 10px; height: 10px; background: #2ecc71; border-radius: 50%; position: absolute; }
+        
         #input-area { position: absolute; bottom: 30px; width: 100%; display: flex; justify-content: center; }
         #answer-input { width: 75%; padding: 12px; font-size: 20px; text-align: center; border-radius: 25px; border: 3px solid #f1c40f; background: rgba(0,0,0,0.85); color: white; outline: none; }
     </style>
 </head>
 <body>
     <div class="stars"></div>
+
     <div id="game-stage">
         <div id="menu-screen">
-            <h1>🇬🇧 单词魔法特训</h1>
+            <h1>[ENGLISH] 单词魔法特训</h1>
             <div class="subtitle">沪教版四下 · 智能精简版</div>
             <div id="unit-list"></div>
         </div>
+
         <div id="hud" style="display:none;">
-            <div onclick="location.reload()" style="cursor:pointer">🔙 退出</div>
+            <div onclick="location.reload()" style="cursor:pointer"> Back (退出)</div>
             <div id="stage-info">Step 1</div>
-            <div>得分: <span id="score">0</span></div>
+            <div>Score: <span id="score">0</span></div>
         </div>
+
         <div id="center-display" style="display:none;">
             <div id="display-content"></div>
             <div id="status-text" style="height:25px; color:#aaa; font-size:14px; margin-bottom: 5px;"></div>
             <div id="options-container" style="display:flex; flex-direction:column; align-items:center; width:100%;"></div>
         </div>
+
         <div id="combat-layer">
-            <div id="player">🧙‍♂️</div>
+            <div id="player">A</div>
             <div id="input-area">
                 <input type="text" id="answer-input" placeholder="输入单词..." autocomplete="off">
             </div>
         </div>
     </div>
+
 <script>
+    // 词库数据
     const TEXTBOOK = {
         "Unit 1": [{en:"get up", cn:"起床"}, {en:"have breakfast", cn:"吃早餐"}, {en:"go to school", cn:"上学"}, {en:"have lunch", cn:"吃午餐"}, {en:"go home", cn:"回家"}, {en:"have dinner", cn:"吃晚餐"}, {en:"go to bed", cn:"睡觉"}, {en:"daily", cn:"日常的"}, {en:"schedule", cn:"日程安排"}, {en:"at", cn:"在(某时间)"}, {en:"o'clock", cn:"...点钟"}, {en:"half", cn:"...点半"}, {en:"little", cn:"年幼的"}, {en:"drink", cn:"喝; 饮"}, {en:"lesson", cn:"课"}, {en:"draw", cn:"画"}, {en:"quarter", cn:"一刻钟"}, {en:"Miss", cn:"小姐"}, {en:"brush my teeth", cn:"刷牙"}, {en:"wash my face", cn:"洗脸"}],
         "Unit 2": [{en:"Chinese", cn:"语文"}, {en:"Maths", cn:"数学"}, {en:"English", cn:"英语"}, {en:"PE", cn:"体育"}, {en:"Music", cn:"音乐"}, {en:"Art", cn:"美术"}, {en:"IT", cn:"信息技术"}, {en:"Science", cn:"科学"}, {en:"club", cn:"社团"}, {en:"student", cn:"学生"}, {en:"different", cn:"不同的"}, {en:"subject", cn:"科目"}, {en:"class", cn:"班级;课"}, {en:"pig", cn:"猪"}, {en:"timetable", cn:"时间表"}, {en:"work out", cn:"算出"}, {en:"model plane", cn:"飞机模型"}],
@@ -75,14 +92,18 @@
         "Unit 7": [{en:"liquid", cn:"液体"}, {en:"solid", cn:"固体"}, {en:"gas", cn:"气体"}, {en:"sugar", cn:"糖"}, {en:"salt", cn:"盐"}, {en:"melt", cn:"融化"}, {en:"steam", cn:"水蒸气"}, {en:"heat", cn:"加热"}, {en:"hungry", cn:"饿的"}, {en:"ice cream", cn:"冰淇淋"}, {en:"freezer", cn:"冰柜"}, {en:"mix", cn:"混合"}],
         "Unit 8": [{en:"polite", cn:"有礼貌的"}, {en:"take turns", cn:"轮流"}, {en:"knock", cn:"敲"}, {en:"ox", cn:"公牛"}, {en:"until", cn:"直到..."}, {en:"invite", cn:"邀请"}, {en:"behind", cn:"在...后面"}, {en:"cry", cn:"哭"}, {en:"kind", cn:"友善的"}, {en:"helpful", cn:"乐于助人的"}]
     };
+    
     let queue=[],qIndex=0,step=1,score=0,recognition=null,isMobile=false;
     const synth=window.speechSynthesis;
+
     function checkEnv(){
         const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
         if(SR){try{recognition=new SR();recognition.lang='en-US';recognition.continuous=false;}catch(e){recognition=null;}}
         if(!recognition||/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)){isMobile=true;}
     }
-    function init(){
+
+    // 确保页面加载完成后执行
+    window.onload = function() {
         checkEnv();
         const list=document.getElementById('unit-list');
         for(let u in TEXTBOOK){
@@ -92,20 +113,22 @@
             btn.onclick=()=>startGame(u);
             list.appendChild(btn);
         }
-    }
+    };
+
     function startGame(u){
         document.getElementById('menu-screen').style.display='none';
         document.getElementById('hud').style.display='flex';
         document.getElementById('center-display').style.display='flex';
         queue=TEXTBOOK[u];qIndex=0;step=1;score=0;loadLevel();
     }
+
     function loadLevel(){
         if(qIndex>=queue.length){
-            if(step<4){step++;qIndex=0;alert(`太棒了！升级到第 ${step} 关！`);loadLevel();}
-            else{alert("🎉 本单元全部通关！");location.reload();}
+            if(step<4){step++;qIndex=0;alert("Level Up! 进入第 "+step+" 关!");loadLevel();}
+            else{alert("Congratulations! 本单元通关!");location.reload();}
             return;
         }
-        const t=["","Step 1: 记忆","Step 2: 辨义","Step 3: 翻译","Step 4: 拼写"];
+        const t=["","Step 1: Memory (记忆)","Step 2: Listen (听力)","Step 3: Meaning (互译)","Step 4: Spell (拼写)"];
         document.getElementById('stage-info').innerText=t[step];
         document.getElementById('score').innerText=score;
         document.getElementById('display-content').innerHTML='';
@@ -113,38 +136,42 @@
         document.getElementById('status-text').innerText='';
         document.getElementById('center-display').style.display='flex';
         document.getElementById('combat-layer').style.display='none';
+        
         const w=queue[qIndex];
         if(step===1)runStep1(w);else if(step===2)runStep2(w);else if(step===3)runStep3(w);else if(step===4)runStep4(w);
     }
+
     function speak(t){if(synth.speaking)synth.cancel();let u=new SpeechSynthesisUtterance(t);u.lang='en-US';synth.speak(u);}
+
     function runStep1(w){
-        document.getElementById('display-content').innerHTML=`<div class="big-word">${w.en}</div><div class="hint-text">${w.cn}</div>`;
+        document.getElementById('display-content').innerHTML='<div class="big-word">'+w.en+'</div><div class="hint-text">'+w.cn+'</div>';
         setTimeout(()=>speak(w.en),300);
         let c=document.getElementById('options-container');
         if(isMobile){
-            document.getElementById('status-text').innerText="🎧 请听音记忆";
-            let b=document.createElement('div');b.className='option-btn';b.innerHTML="✅ 我记住了 (Next)";
-            b.style.background="#2980b9";b.style.borderColor="#3498db";
+            document.getElementById('status-text').innerText="Please Listen (请记忆)";
+            let b=document.createElement('div');b.className='option-btn';b.innerText="Next (记住了)";
+            b.style.background="#2980b9";
             b.onclick=()=>{score+=5;next();};c.appendChild(b);
         }else{
-            document.getElementById('status-text').innerText="🎙️ 请大声跟读";
-            let b=document.createElement('div');b.className='option-btn';b.innerText="🎙️ 点击开始跟读";
+            document.getElementById('status-text').innerText="Read Aloud (请跟读)";
+            let b=document.createElement('div');b.className='option-btn';b.innerText="Click to Read (点击跟读)";
             let s=document.getElementById('status-text');
             b.onclick=()=>{
-                b.style.background="#f39c12";b.innerText="👂 正在听...";
+                b.style.background="#f39c12";b.innerText="Listening...";
                 try{recognition.start();}catch(e){}
                 recognition.onresult=(e)=>{
                     let t=e.results[0][0].transcript.toLowerCase();
-                    if(t.includes(w.en.toLowerCase())||t.length>0){s.innerHTML="<span style='color:#2ecc71'>Excellent! ✨</span>";score+=10;setTimeout(next,800);}
+                    if(t.includes(w.en.toLowerCase())||t.length>0){s.innerText="Excellent!";score+=10;setTimeout(next,800);}
                 };
             };
             c.appendChild(b);
-            let k=document.createElement('div');k.innerText="跳过 >>";k.style.color="#888";k.style.marginTop="10px";k.style.cursor="pointer";k.onclick=next;c.appendChild(k);
+            let k=document.createElement('div');k.innerText="Pass (跳过)";k.style.color="#888";k.style.marginTop="10px";k.style.cursor="pointer";k.onclick=next;c.appendChild(k);
         }
     }
+
     function runStep2(w){
-        document.getElementById('display-content').innerHTML=`<div style="font-size:60px; margin:20px 0; cursor:pointer" onclick="speak('${w.en}')">🔊</div>`;
-        document.getElementById('status-text').innerText="点击喇叭重听，选择意思";
+        document.getElementById('display-content').innerHTML='<div style="font-size:60px; margin:20px 0; cursor:pointer" onclick="speak(\''+w.en+'\')">🔊</div>';
+        document.getElementById('status-text').innerText="Listen and Choose (听音选义)";
         speak(w.en);
         getOpts(w,'cn').forEach(o=>{
             let b=document.createElement('div');b.className='option-btn';b.innerText=o.cn;
@@ -152,13 +179,41 @@
             document.getElementById('options-container').appendChild(b);
         });
     }
+
     function runStep3(w){
-        document.getElementById('display-content').innerHTML=`<div class="big-word">${w.cn}</div>`;
+        document.getElementById('display-content').innerHTML='<div class="big-word">'+w.cn+'</div>';
         getOpts(w,'en').forEach(o=>{
             let b=document.createElement('div');b.className='option-btn';b.innerText=o.en;
             b.onclick=()=>{if(o===w){b.classList.add('correct');speak(w.en);score+=10;setTimeout(next,500);}else{b.classList.add('wrong');}};
             document.getElementById('options-container').appendChild(b);
         });
     }
+
     function runStep4(w){
-        document.getElementById
+        document.getElementById('center-display').style.display='none';
+        document.getElementById('combat-layer').style.display='block';
+        let i=document.getElementById('answer-input');i.value='';i.focus();
+        let e=document.createElement('div');e.className='enemy';e.innerText=w.cn;
+        e.style.top='100px';e.style.left=(Math.random()*(window.innerWidth-150)+20)+"px";
+        document.getElementById('combat-layer').appendChild(e);
+        const chk=()=>{
+            if(i.value.trim().toLowerCase()===w.en.toLowerCase()){
+                let b=document.createElement('div');b.className='bullet';
+                let p=document.getElementById('player');
+                b.style.bottom='130px';b.style.left='50%';
+                document.getElementById('combat-layer').appendChild(b);
+                setTimeout(()=>{
+                    b.style.transition="top 0.2s";b.style.top=e.style.top;b.style.left=e.style.left;
+                    setTimeout(()=>{e.remove();b.remove();speak(w.en);score+=20;next();},200);
+                },10);
+            }
+        };
+        i.onkeypress=(evt)=>{if(evt.key==='Enter')chk();};
+        i.oninput=()=>{if(i.value.trim().toLowerCase()===w.en.toLowerCase())chk();};
+    }
+
+    function next(){qIndex++;loadLevel();}
+    function getOpts(c,k){let a=[c];while(a.length<3){let r=queue[Math.floor(Math.random()*queue.length)];if(!a.includes(r))a.push(r);}return a.sort(()=>Math.random()-0.5);}
+</script>
+</body>
+</html>
